@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Connections Web</title>
+    <!-- Load Vis.js Library for the Network Graph -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        #mynetwork {
+            width: 100%;
+            height: 80vh;
+            border: 2px solid #ddd;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .legend {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            color: #444;
+        }
+        .dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>The Aspirational Career Web</h1>
+    <p><strong>Interactive:</strong> Drag the bubbles around! <strong>Hover your mouse over the connecting lines</strong> to see how the careers are linked.</p>
+
+    <div id="mynetwork"></div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="dot" style="background-color: #97C2FC;"></div> Care & Empathy</div>
+        <div class="legend-item"><div class="dot" style="background-color: #7BE141;"></div> Tech & Science</div>
+        <div class="legend-item"><div class="dot" style="background-color: #EB7DF4;"></div> Business & Leadership</div>
+        <div class="legend-item"><div class="dot" style="background-color: #FFA807;"></div> Creativity & Origin</div>
+    </div>
+
+    <script type="text/javascript">
+        // 1. Create an array with nodes (The Careers)
+        var nodes = new vis.DataSet([
+            { id: 1, label: 'Account Project\nManager', group: 'biz' },
+            { id: 2, label: 'Paramedic\n(Student/Pro)', group: 'care' },
+            { id: 3, label: 'Lead Product\nDesigner (UX)', group: 'tech' },
+            { id: 4, label: 'Head of Supply\nChain Procurer', group: 'biz' },
+            { id: 5, label: 'Hobbyist', group: 'creative', shape: 'ellipse' }, // The genesis point
+            { id: 6, label: 'Computer Hardware\nEngineer', group: 'tech' },
+            { id: 7, label: 'Music Producer', group: 'creative' },
+            { id: 8, label: 'Prime Minister', group: 'biz', shape: 'circle' }, // The Hub
+            { id: 9, label: 'Business Owner\n(Nursery & Care)', group: 'care' },
+            { id: 10, label: 'Childcare', group: 'care' },
+            { id: 11, label: 'Christian\nSupport Worker', group: 'care' },
+            { id: 12, label: 'Business Owner\n(Various)', group: 'biz' },
+            { id: 13, label: 'Microbiologist', group: 'tech' },
+            { id: 14, label: 'Head of Science\n/ Research', group: 'tech' }
+        ]);
+
+        // 2. Create an array with edges (The Links)
+        // The "title" attribute creates the hover tooltip!
+        var edges = new vis.DataSet([
+            // Direct Pipelines
+            { from: 10, to: 9, title: 'Career progression: Childcare worker to Nursery Owner' },
+            { from: 9, to: 12, title: 'Scaling up: Single business evolves into diverse portfolio' },
+            { from: 13, to: 14, title: 'Promotion pipeline: Ground lab work to department head' },
+            { from: 5, to: 7, title: 'Genesis: Monetizing a hobbyist passion for music' },
+            { from: 5, to: 6, title: 'Genesis: Tinkering with electronics becomes hardware engineering' },
+            { from: 5, to: 12, title: 'Genesis: Hobby projects turning into varied businesses' },
+
+            // Supply Chain & Tech Web
+            { from: 4, to: 6, title: 'Procures the raw materials (silicon/metals) to build hardware' },
+            { from: 6, to: 3, title: 'Hardware requires software interfaces designed by UX' },
+            { from: 3, to: 7, title: 'UX Designers create the Music Software (DAWs) producers use' },
+            { from: 1, to: 3, title: 'APM manages design and tech projects for clients' },
+            { from: 1, to: 12, title: 'Business owners hire APMs to execute their corporate visions' },
+            { from: 4, to: 13, title: 'Procures sterile, rare, and specific chemicals for lab research' },
+
+            // Health & Empathy Ecosystem
+            { from: 11, to: 10, title: 'Overlap in church-run nurseries and community safeguarding' },
+            { from: 11, to: 2, title: 'Intersection of trauma (Paramedic = Physical, Support Worker = Spiritual/Emotional)' },
+            { from: 2, to: 9, title: 'Paramedic frameworks form first-aid policies for nurseries' },
+            { from: 13, to: 2, title: 'Microbiologists create disease protocols that frontline paramedics follow' },
+            { from: 13, to: 9, title: 'Research dictates hygiene and isolation protocols in nurseries' },
+
+            // Prime Minister Hub (Macro-Control)
+            { from: 8, to: 14, title: 'PM relies on Chief Scientific Advisors for national policy' },
+            { from: 8, to: 4, title: 'PM trade deals and tariffs dictate global supply chains' },
+            { from: 8, to: 2, title: 'PM controls national health budgets (NHS) and paramedicine policies' },
+            { from: 8, to: 12, title: 'PM sets corporate tax rates and business regulations' },
+            { from: 8, to: 10, title: 'PM policies dictate national childcare subsidies' },
+            { from: 8, to: 11, title: 'Gov grants fund faith-based charities for social interventions' },
+
+            // Abstract Links
+            { from: 7, to: 2, title: 'Music producers/audio engineers design the specific frequencies for medical alarms and sirens' },
+            { from: 11, to: 3, title: 'Shared focus on empathy, inclusivity, and accessibility for disabled populations' },
+            { from: 8, to: 1, title: 'Conceptual: The PM is just the ultimate Account Project Manager for the country' },
+            { from: 8, to: 5, title: 'Gov regulates modern hobbies (drones, crypto, radio)' }
+        ]);
+
+        // 3. Setup the Network Container and Data
+        var container = document.getElementById('mynetwork');
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+
+        // 4. Configuration Options (Styling, Physics, and Interactivity)
+        var options = {
+            nodes: {
+                shape: 'box',
+                margin: 12,
+                font: {
+                    size: 16,
+                    face: 'Segoe UI',
+                    multi: true,
+                    bold: { color: '#333' }
+                },
+                borderWidth: 2,
+                shadow: true
+            },
+            edges: {
+                width: 2,
+                color: { color: '#aaa', highlight: '#333' },
+                smooth: { type: 'continuous' }
+            },
+            groups: {
+                care: { color: { background: '#97C2FC', border: '#2B7CE9' } },
+                tech: { color: { background: '#7BE141', border: '#41A906' } },
+                biz: { color: { background: '#EB7DF4', border: '#AD85E4' } },
+                creative: { color: { background: '#FFA807', border: '#C0504D' } }
+            },
+            physics: {
+                forceAtlas2Based: {
+                    gravitationalConstant: -100,
+                    centralGravity: 0.005,
+                    springLength: 250,
+                    springConstant: 0.02
+                },
+                maxVelocity: 50,
+                solver: 'forceAtlas2Based',
+                timestep: 0.35,
+                stabilization: { iterations: 150 }
+            },
+            interaction: {
+                hover: true, // This is what enables the tooltips!
+                tooltipDelay: 100
+            }
+        };
+
+        // 5. Initialize Network!
+        var network = new vis.Network(container, data, options);
+    </script>
+</body>
+</html>
