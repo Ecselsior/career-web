@@ -3,179 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Connections Web</title>
-    <!-- Load Vis.js Library for the Network Graph -->
+    <title>Career & NHS Connections Maps</title>
+    <!-- Load Vis.js Library -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #f0f4f8;
             margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        h1 {
+            padding: 0;
             color: #333;
-            margin-bottom: 5px;
         }
-        p {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        #mynetwork {
+
+        /* Top Navigation Bar */
+        .navbar {
+            background-color: #005EB8; /* NHS Blue */
+            position: fixed;
+            top: 0;
             width: 100%;
-            height: 80vh;
-            border: 2px solid #ddd;
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .legend {
-            margin-top: 15px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
             display: flex;
             justify-content: center;
             gap: 20px;
+            padding: 15px 0;
         }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 5px 15px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Layout Containers */
+        .container {
+            max-width: 1200px;
+            margin: 100px auto 50px auto;
+            padding: 20px;
+        }
+
+        .section {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 60px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid #e1e8ed;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        .section-desc {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        /* Network Containers */
+        .network-container {
+            width: 100%;
+            height: 75vh;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafbfc;
+        }
+
+        /* Legends */
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
             font-weight: bold;
-            color: #444;
+            font-size: 0.9em;
+            color: #555;
         }
+
         .dot {
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 40px 0;
+        }
+
+        /* =========================================================
+           TOOLTIP FIX: Forces the hover text to wrap and look modern
+           ========================================================= */
+        div.vis-tooltip {
+            position: absolute;
+            max-width: 320px !important; /* Limits the width */
+            white-space: normal !important; /* Forces text to wrap onto new lines */
+            padding: 12px 16px !important;
+            background-color: #1e293b !important; /* Dark slate background */
+            color: #f8fafc !important; /* Light text */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+            border: 1px solid #475569 !important;
+            z-index: 9999 !important;
         }
     </style>
 </head>
 <body>
 
-    <h1>The Aspirational Career Web</h1>
-    <p><strong>Interactive:</strong> Drag the bubbles around! <strong>Hover your mouse over the connecting lines</strong> to see how the careers are linked.</p>
-
-    <div id="mynetwork"></div>
-
-    <div class="legend">
-        <div class="legend-item"><div class="dot" style="background-color: #97C2FC;"></div> Care & Empathy</div>
-        <div class="legend-item"><div class="dot" style="background-color: #7BE141;"></div> Tech & Science</div>
-        <div class="legend-item"><div class="dot" style="background-color: #EB7DF4;"></div> Business & Leadership</div>
-        <div class="legend-item"><div class="dot" style="background-color: #FFA807;"></div> Creativity & Origin</div>
+    <!-- Navigation -->
+    <div class="navbar">
+        <a href="#careers-section">Career Connections Web</a>
+        <a href="#nhs-section">NHS Connection Web</a>
     </div>
 
+    <div class="container">
+
+        <!-- SECTION 1: CAREER CONNECTIONS WEB -->
+        <div id="careers-section" class="section">
+            <h1>The Career Connections Web</h1>
+            <p class="section-desc">
+                An interactive map showing how these 14 aspirational careers connect to one another through shared skills, operations, and pipelines. 
+                <strong>Drag nodes to move them; hover over the grey lines to read the connection.</strong>
+            </p>
+            
+            <div id="mynetwork-careers" class="network-container"></div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="dot" style="background-color: #97C2FC;"></div> Care & Empathy</div>
+                <div class="legend-item"><div class="dot" style="background-color: #7BE141;"></div> Tech & Science</div>
+                <div class="legend-item"><div class="dot" style="background-color: #EB7DF4;"></div> Business & Leadership</div>
+                <div class="legend-item"><div class="dot" style="background-color: #FFA807;"></div> Creativity & Origin</div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- SECTION 2: NHS CONNECTION WEB -->
+        <div id="nhs-section" class="section">
+            <h1 style="color: #005EB8;">The NHS Constellation Web</h1>
+            <p class="section-desc">
+                The NHS operates as a massive central gravity well. This map shows how all careers remain interconnected, but are pulled toward the 
+                <strong>NHS (the bright blue central hub)</strong>. 
+                <br><em>*Thick blue arrows represent direct pipelines to the NHS. Thin grey lines represent the career-to-career links.</em>
+            </p>
+            
+            <div id="mynetwork-nhs" class="network-container"></div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="dot" style="background-color: #005EB8; width: 20px; height: 20px;"></div> Central NHS Hub</div>
+                <div class="legend-item"><div class="dot" style="background-color: #7BE141;"></div> Direct Clinical & Research</div>
+                <div class="legend-item"><div class="dot" style="background-color: #97C2FC;"></div> Tech, Design & Operations</div>
+                <div class="legend-item"><div class="dot" style="background-color: #EB7DF4;"></div> External Care, Business & Policy</div>
+                <div class="legend-item"><div class="dot" style="background-color: #FFA807;"></div> Indirect & Creative Support</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Graph Render Scripts -->
     <script type="text/javascript">
-        // 1. Create an array with nodes (The Careers)
-        var nodes = new vis.DataSet([
-            { id: 1, label: 'Account Project\nManager', group: 'biz' },
-            { id: 2, label: 'Paramedic\n(Student/Pro)', group: 'care' },
-            { id: 3, label: 'Lead Product\nDesigner (UX)', group: 'tech' },
-            { id: 4, label: 'Head of Supply\nChain Procurer', group: 'biz' },
-            { id: 5, label: 'Hobbyist', group: 'creative', shape: 'ellipse' }, // The genesis point
-            { id: 6, label: 'Computer Hardware\nEngineer', group: 'tech' },
+
+        // ==========================================
+        // GRAPH 1: CAREER CONNECTIONS WEB DATA
+        // ==========================================
+        var nodesCareers = new vis.DataSet([
+            { id: 1, label: 'Account Project Manager', group: 'biz' },
+            { id: 2, label: 'Paramedic (Student/Pro)', group: 'care' },
+            { id: 3, label: 'Lead Product Designer (UX)', group: 'tech' },
+            { id: 4, label: 'Head of Supply Chain Procurer', group: 'biz' },
+            { id: 5, label: 'Hobbyist', group: 'creative', shape: 'ellipse' },
+            { id: 6, label: 'Computer Hardware Engineer', group: 'tech' },
             { id: 7, label: 'Music Producer', group: 'creative' },
-            { id: 8, label: 'Prime Minister', group: 'biz', shape: 'circle' }, // The Hub
-            { id: 9, label: 'Business Owner\n(Nursery & Care)', group: 'care' },
+            { id: 8, label: 'Prime Minister', group: 'biz', shape: 'circle' },
+            { id: 9, label: 'Business Owner (Nursery & Care)', group: 'care' },
             { id: 10, label: 'Childcare', group: 'care' },
-            { id: 11, label: 'Christian\nSupport Worker', group: 'care' },
-            { id: 12, label: 'Business Owner\n(Various)', group: 'biz' },
+            { id: 11, label: 'Christian Support Worker', group: 'care' },
+            { id: 12, label: 'Business Owner (Various)', group: 'biz' },
             { id: 13, label: 'Microbiologist', group: 'tech' },
-            { id: 14, label: 'Head of Science\n/ Research', group: 'tech' }
+            { id: 14, label: 'Head of Science / Research', group: 'tech' }
         ]);
 
-        // 2. Create an array with edges (The Links)
-        // The "title" attribute creates the hover tooltip!
-        var edges = new vis.DataSet([
-            // Direct Pipelines
+        var edgesCareers = new vis.DataSet([
             { from: 10, to: 9, title: 'Career progression: Childcare worker to Nursery Owner' },
             { from: 9, to: 12, title: 'Scaling up: Single business evolves into diverse portfolio' },
             { from: 13, to: 14, title: 'Promotion pipeline: Ground lab work to department head' },
             { from: 5, to: 7, title: 'Genesis: Monetizing a hobbyist passion for music' },
             { from: 5, to: 6, title: 'Genesis: Tinkering with electronics becomes hardware engineering' },
             { from: 5, to: 12, title: 'Genesis: Hobby projects turning into varied businesses' },
-
-            // Supply Chain & Tech Web
             { from: 4, to: 6, title: 'Procures the raw materials (silicon/metals) to build hardware' },
             { from: 6, to: 3, title: 'Hardware requires software interfaces designed by UX' },
             { from: 3, to: 7, title: 'UX Designers create the Music Software (DAWs) producers use' },
             { from: 1, to: 3, title: 'APM manages design and tech projects for clients' },
             { from: 1, to: 12, title: 'Business owners hire APMs to execute their corporate visions' },
             { from: 4, to: 13, title: 'Procures sterile, rare, and specific chemicals for lab research' },
-
-            // Health & Empathy Ecosystem
             { from: 11, to: 10, title: 'Overlap in church-run nurseries and community safeguarding' },
             { from: 11, to: 2, title: 'Intersection of trauma (Paramedic = Physical, Support Worker = Spiritual/Emotional)' },
             { from: 2, to: 9, title: 'Paramedic frameworks form first-aid policies for nurseries' },
             { from: 13, to: 2, title: 'Microbiologists create disease protocols that frontline paramedics follow' },
             { from: 13, to: 9, title: 'Research dictates hygiene and isolation protocols in nurseries' },
-
-            // Prime Minister Hub (Macro-Control)
             { from: 8, to: 14, title: 'PM relies on Chief Scientific Advisors for national policy' },
             { from: 8, to: 4, title: 'PM trade deals and tariffs dictate global supply chains' },
             { from: 8, to: 2, title: 'PM controls national health budgets (NHS) and paramedicine policies' },
             { from: 8, to: 12, title: 'PM sets corporate tax rates and business regulations' },
             { from: 8, to: 10, title: 'PM policies dictate national childcare subsidies' },
             { from: 8, to: 11, title: 'Gov grants fund faith-based charities for social interventions' },
-
-            // Abstract Links
             { from: 7, to: 2, title: 'Music producers/audio engineers design the specific frequencies for medical alarms and sirens' },
             { from: 11, to: 3, title: 'Shared focus on empathy, inclusivity, and accessibility for disabled populations' },
             { from: 8, to: 1, title: 'Conceptual: The PM is just the ultimate Account Project Manager for the country' },
             { from: 8, to: 5, title: 'Gov regulates modern hobbies (drones, crypto, radio)' }
         ]);
 
-        // 3. Setup the Network Container and Data
-        var container = document.getElementById('mynetwork');
-        var data = {
-            nodes: nodes,
-            edges: edges
+        // ==========================================
+        // GRAPH 2: NHS CONNECTION WEB DATA
+        // ==========================================
+        var nodesNhs = new vis.DataSet([
+            // Central Massive NHS Gravity Node
+            { id: 0, label: 'NHS\n(National Health Service)', color: { background: '#005EB8', border: '#003087' }, font: { color: '#ffffff', size: 18, bold: true }, shape: 'circle', mass: 6, widthConstraint: { minimum: 140, maximum: 140 } },
+            
+            // Standard Careers (Color-Coded)
+            { id: 2, label: 'Paramedic (Student/Pro)', group: 'clinical' },
+            { id: 13, label: 'Microbiologist', group: 'clinical' },
+            { id: 14, label: 'Head of Science / Research', group: 'clinical' },
+            { id: 1, label: 'Account Project Manager', group: 'ops' },
+            { id: 3, label: 'Lead Product Designer (UX)', group: 'ops' },
+            { id: 4, label: 'Head of Supply Chain Procurer', group: 'ops' },
+            { id: 6, label: 'Computer Hardware Engineer', group: 'ops' },
+            { id: 8, label: 'Prime Minister', group: 'external' },
+            { id: 9, label: 'Business Owner (Nursery & Care)', group: 'external' },
+            { id: 10, label: 'Childcare', group: 'external' },
+            { id: 11, label: 'Christian Support Worker', group: 'external' },
+            { id: 12, label: 'Business Owner (Various)', group: 'external' },
+            { id: 5, label: 'Hobbyist', group: 'creative' },
+            { id: 7, label: 'Music Producer', group: 'creative' }
+        ]);
+
+        var edgesNhs = new vis.DataSet([
+            // --- Direct NHS High-Priority Pipelines (Thick, Blue, Directed) ---
+            { from: 2, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Direct Clinical:</b> Paramedics are front-line emergency clinical staff, either employed directly by NHS Trusts or integrated into the NHS care pathway.' },
+            { from: 13, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Diagnostic Support:</b> Microbiologists work in NHS pathology labs analyzing patient samples to diagnose infectious diseases and manage outbreaks.' },
+            { from: 14, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Innovation:</b> The Head of Research oversees clinical trials, medical advancements, and genomic studies within NHS hospitals and partner universities.' },
+            { from: 1, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Infrastructure:</b> Project Managers coordinate massive NHS capital investments, such as hospital rebuilds, digital system integrations, or service reorganizations.' },
+            { from: 3, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Patient Experience:</b> UX Designers design the interfaces for patient-facing systems like the NHS App, prescription booking services, and clinician-facing software.' },
+            { from: 4, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Logistics:</b> The Procurer manages NHS supply chains to ensure hospitals never run out of crucial items like PPE, medicine, surgical gear, and medical implants.' },
+            { from: 6, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Medical Tech:</b> Hardware Engineers design, maintain, and calibrate physical equipment used daily in NHS facilities, such as ventilators, MRI machines, and diagnostics.' },
+            { from: 8, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Governance & Funding:</b> The PM appoints the Health Secretary and ultimately determines the annual budget allocation, tax policies, and structural reforms of the NHS.' },
+            { from: 9, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Social Integration:</b> Private care home and nursery owners work closely with the NHS to facilitate patient discharge, easing "bed-blocking" pressures on NHS hospitals.' },
+            { from: 10, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Staff Support:</b> Childcare workers support the NHS by looking after the children of NHS doctors, nurses, and shift-workers, keeping hospitals fully staffed.' },
+            { from: 11, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Palliative/Holistic Care:</b> Support workers collaborate with NHS community care teams, providing chaplaincy, spiritual comfort, and social welfare to vulnerable patients.' },
+            { from: 12, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Procurement & Services:</b> Private business owners act as external contractors to the NHS, supplying outsourced services like catering, laundry, and locum agency staff.' },
+            { from: 5, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Crisis Support & Wellness:</b> Hobbyists often step in during national shortages (e.g., 3D-printing PPE during COVID) and run local recreational groups that reduce mental health strain on the NHS.' },
+            { from: 7, to: 0, width: 6, color: '#005EB8', arrows: 'to', title: '<b>Acoustic Safety & Therapy:</b> Music producers design therapeutic soundscapes for mental health units and help program ergonomic alarm tones for hospital monitors to prevent "alarm fatigue" in clinicians.' },
+
+            // --- Secondary Inter-Career Links (Thin, Grey, Undirected) ---
+            { from: 10, to: 9, width: 1.5, color: '#ccc', title: 'Career progression: Childcare worker to Nursery Owner' },
+            { from: 9, to: 12, width: 1.5, color: '#ccc', title: 'Scaling up: Single business evolves into diverse portfolio' },
+            { from: 13, to: 14, width: 1.5, color: '#ccc', title: 'Promotion pipeline: Ground lab work to department head' },
+            { from: 5, to: 7, width: 1.5, color: '#ccc', title: 'Genesis: Monetizing a hobbyist passion for music' },
+            { from: 5, to: 6, width: 1.5, color: '#ccc', title: 'Genesis: Tinkering with electronics becomes hardware engineering' },
+            { from: 4, to: 6, width: 1.5, color: '#ccc', title: 'Procures raw materials (silicon/metals) to build hardware' },
+            { from: 6, to: 3, width: 1.5, color: '#ccc', title: 'Hardware requires software interfaces designed by UX' },
+            { from: 3, to: 7, width: 1.5, color: '#ccc', title: 'UX Designers create the Music Software (DAWs) producers use' },
+            { from: 1, to: 3, width: 1.5, color: '#ccc', title: 'APM manages design and tech projects' },
+            { from: 11, to: 10, width: 1.5, color: '#ccc', title: 'Overlap in church-run nurseries and community safeguarding' },
+            { from: 11, to: 2, width: 1.5, color: '#ccc', title: 'Intersection of trauma (Paramedic = Physical, Support Worker = Spiritual/Emotional)' },
+            { from: 2, to: 9, width: 1.5, color: '#ccc', title: 'Paramedic frameworks form first-aid policies for nurseries' },
+            { from: 13, to: 2, width: 1.5, color: '#ccc', title: 'Microbiologists create disease protocols that frontline paramedics follow' },
+            { from: 13, to: 9, width: 1.5, color: '#ccc', title: 'Research dictates hygiene and isolation protocols in nurseries' },
+            { from: 7, to: 2, width: 1.5, color: '#ccc', title: 'Music producers design acoustic safety alerts and sirens' },
+            { from: 11, to: 3, width: 1.5, color: '#ccc', title: 'Accessibility and empathy in UX design' }
+        ]);
+
+
+        // ==========================================
+        // INITIALIZE NETWORKS & GLOBAL SETTINGS
+        // ==========================================
+        
+        // This is the global configuration that guarantees text wrapping on nodes
+        var globalNodeConfig = {
+            shape: 'box',
+            margin: 10,
+            widthConstraint: {
+                minimum: 120,
+                maximum: 120
+            },
+            font: {
+                size: 13,
+                face: 'Segoe UI',
+                multi: true
+            },
+            borderWidth: 2,
+            shadow: true
         };
 
-        // 4. Configuration Options (Styling, Physics, and Interactivity)
-        var options = {
-            nodes: {
-                shape: 'box',
-                margin: 12,
-                font: {
-                    size: 16,
-                    face: 'Segoe UI',
-                    multi: true,
-                    bold: { color: '#333' }
-                },
-                borderWidth: 2,
-                shadow: true
-            },
-            edges: {
-                width: 2,
-                color: { color: '#aaa', highlight: '#333' },
-                smooth: { type: 'continuous' }
-            },
+        // Interaction configuration (Enables HTML inside tooltips)
+        var globalInteraction = {
+            hover: true,
+            tooltipDelay: 100
+        };
+
+        // Init Graph 1 (Careers Network)
+        var containerCareers = document.getElementById('mynetwork-careers');
+        var optionsCareers = {
+            nodes: globalNodeConfig,
+            interaction: globalInteraction,
             groups: {
                 care: { color: { background: '#97C2FC', border: '#2B7CE9' } },
                 tech: { color: { background: '#7BE141', border: '#41A906' } },
                 biz: { color: { background: '#EB7DF4', border: '#AD85E4' } },
                 creative: { color: { background: '#FFA807', border: '#C0504D' } }
             },
+            edges: {
+                width: 2,
+                color: { color: '#ccc', highlight: '#333' }
+            },
             physics: {
                 forceAtlas2Based: {
                     gravitationalConstant: -100,
                     centralGravity: 0.005,
-                    springLength: 250,
+                    springLength: 220,
                     springConstant: 0.02
                 },
-                maxVelocity: 50,
                 solver: 'forceAtlas2Based',
                 timestep: 0.35,
-                stabilization: { iterations: 150 }
-            },
-            interaction: {
-                hover: true, // This is what enables the tooltips!
-                tooltipDelay: 100
+                stabilization: { iterations: 120 }
             }
         };
+        var networkCareers = new vis.Network(containerCareers, { nodes: nodesCareers, edges: edgesCareers }, optionsCareers);
 
-        // 5. Initialize Network!
-        var network = new vis.Network(container, data, options);
+
+        // Init Graph 2 (NHS Network)
+        var containerNhs = document.getElementById('mynetwork-nhs');
+        var optionsNhs = {
+            nodes: globalNodeConfig,
+            interaction: globalInteraction,
+            groups: {
+                clinical: { color: { background: '#7BE141', border: '#41A906' } },
+                ops: { color: { background: '#97C2FC', border: '#2B7CE9' } },
+                external: { color: { background: '#EB7DF4', border: '#AD85E4' } },
+                creative: { color: { background: '#FFA807', border: '#C0504D' } }
+            },
+            physics: {
+                forceAtlas2Based: {
+                    gravitationalConstant: -110,
+                    centralGravity: 0.01,
+                    springLength: 180,
+                    springConstant: 0.03
+                },
+                solver: 'forceAtlas2Based',
+                timestep: 0.35,
+                stabilization: { iterations: 120 }
+            }
+        };
+        var networkNhs = new vis.Network(containerNhs, { nodes: nodesNhs, edges: edgesNhs }, optionsNhs);
     </script>
 </body>
 </html>
